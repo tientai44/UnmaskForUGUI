@@ -39,7 +39,11 @@ namespace Coffee.UIExtensions.Editors
         {
             return CreateUnmaskedPanel(AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd"), Image.Type.Sliced);
         }
-
+        [MenuItem("GameObject/UI/Unmask/Unmasked Item")]
+        private static GameObject CreateUnmaskedImage(MenuCommand menuCommand)
+        {
+            return CreateUnmaskedImage(AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd"), Image.Type.Sliced);
+        }
         private static GameObject CreateUnmaskedPanel(Sprite unmaskSprite, Image.Type spriteType)
         {
             EditorApplication.ExecuteMenuItem("GameObject/UI/Panel");
@@ -60,6 +64,8 @@ namespace Coffee.UIExtensions.Editors
             image.sprite = unmaskSprite;
             image.type = spriteType;
 
+
+
             EditorApplication.ExecuteMenuItem("GameObject/UI/Panel");
             var screen = Selection.activeGameObject.GetComponent<Image>();
             screen.name = "Screen";
@@ -67,6 +73,32 @@ namespace Coffee.UIExtensions.Editors
             screen.color = new Color(0, 0, 0, 0.8f);
             screen.transform.SetParent(mask.transform);
 
+            return mask.gameObject;
+        }
+        private static GameObject CreateUnmaskedImage(Sprite unmaskSprite, Image.Type spriteType)
+        {
+            var mask = Selection.activeGameObject;
+            Object.DestroyImmediate(mask.transform.Find("Screen").gameObject);
+
+            EditorApplication.ExecuteMenuItem("GameObject/UI/Image");
+            var unmask = Selection.activeGameObject.AddComponent<Unmask>();
+            unmask.name = "Unmask";
+            unmask.transform.SetParent(mask.transform);
+            unmask.GetComponent<Image>().sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+
+            mask.gameObject.AddComponent<UnmaskRaycastFilter>().targetUnmask = unmask;
+
+            var image = unmask.GetComponent<Image>();
+            image.sprite = unmaskSprite;
+            image.type = spriteType;
+
+            EditorApplication.ExecuteMenuItem("GameObject/UI/Panel");
+
+            var screen = Selection.activeGameObject.GetComponent<Image>();
+            screen.name = "Screen";
+            screen.sprite = null;
+            screen.color = new Color(0, 0, 0, 0.8f);
+            screen.transform.SetParent(mask.transform);
             return mask.gameObject;
         }
     }
